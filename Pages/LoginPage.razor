@@ -1,0 +1,167 @@
+﻿@page "/login"
+@using Data.Model
+@inject NavigationManager NavigationManager
+
+<style>
+    /* Container styling */
+    .form-container {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Form group styling */
+    .form-group {
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    /* Label styling */
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    /* Input and select styling */
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* Validation message styling */
+    .validation-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    /* Button styling */
+    .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<EditForm Model="@loginModel" OnValidSubmit="@Handle">
+    <DataAnnotationsValidator />
+
+   <div class="form-container">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <InputText id="email" @bind-Value="loginModel.Email" class="form-control" />
+            <ValidationMessage For="@(() => loginModel.Email)" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <InputText id="password" type="password" @bind-Value="loginModel.Password" class="form-control" />
+            <ValidationMessage For="@(() => loginModel.Password)" />
+        </div>
+
+        <div class="form-group">
+            <label for="userRole">User Role:</label>
+            <select id="userRole" @bind="loginModel.UserRole" class="form-control">
+                <option value="Admin">Admin</option>
+                <option value="Staff">Staff</option>
+            </select>
+            <ValidationMessage For="@(() => loginModel.UserRole)" />
+        </div>
+
+        <button type="submit" class="btn-primary">Login</button>
+
+   </div>
+</EditForm>
+
+@code {
+
+    public LoginModel loginModel = new LoginModel();
+
+    public void Handle()
+    {
+        try
+        {
+            NavigationManager.NavigateTo("/home");
+
+        }
+        catch (Exception ex)
+        {
+            App.Current.MainPage.DisplayAlert("Error", $"{ex.Message}", "Ok");
+
+        }
+    }
+
+    public async Task HandleLogin()
+    {
+        try
+        {
+            if (loginModel.UserRole == "Admin")
+            {
+                //if (loginModel.Email == "kaman@admin.com" && loginModel.Password == "12345")
+                //{
+                //  await App.Current.MainPage.DisplayAlert("Success", "Login Success", "Ok");
+
+                //System.Diagnostics.Debug.WriteLine("I am using debugging");
+                try
+                {
+                    NavigationManager.NavigateTo("/home");
+
+                }
+                catch(Exception ex)
+                {
+                    await App.Current.MainPage.DisplayAlert("Error", $"{ex.Message}", "Ok");
+
+                }
+
+
+
+                //}
+            }
+            else if (loginModel.UserRole == "Staff")
+            {
+                if (loginModel.Email == "kaman@staff.com" && loginModel.Password == "12345")
+                {
+                    Console.WriteLine("Sraff Login Success");
+                    System.Diagnostics.Debug.WriteLine("Staff logged in");
+
+
+                    // Staff login logic
+                    // ...
+
+                    // Redirect to a protected staff page after successful login
+                    // NavigationManager.NavigateTo("/staff-dashboard");
+                    return;
+                }
+            }
+
+            // Show error message for invalid credentials or role
+            Console.WriteLine("Invalid credentials or role");
+        }
+        catch (Exception ex)
+        {
+            // Display an error alert if an exception occurs during editing
+            await App.Current.MainPage.DisplayAlert("Error", $"{ex.Message}", "Ok");
+        }
+
+    }
+
+   
+}

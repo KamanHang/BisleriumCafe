@@ -1,0 +1,193 @@
+﻿﻿<!-- Razor page for viewing form data saved in Json file-->
+@page "/vieworder"
+
+<!---- Giving reference to the Package IronPdf to use its method and download functionality-->
+@using IronPdf
+<style>
+    .content{
+        margin-left:10rem;
+    }
+    .table-container {
+        margin-top: 20px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        margin-bottom: 5px;
+    }
+
+    .btn-primary {
+        background-color: green;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+        .btn-primary:hover {
+            background-color: limegreen;
+        }
+</style>
+
+<div class="page">
+    <div class="sidebar">
+        <NavBar />
+    </div>
+    <div class="content">
+
+        <h3>ViewFormData</h3>
+        <button class="btn btn-primary" @onclick="DownloadPdf">Download</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Phone Number</th>
+                    <th>Customer Type</th>
+                    <th>Coffee Type</th>
+                    <th>Coffee Size</th>
+                    <th>Number of Purchase</th>
+                    <th>Add Ons</th>
+                    <th>Total Price</th>
+                    <th>Action</th>
+
+
+
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through each form data -->
+                @foreach (var formData in CafeFormServices.RetrieveFormData())
+                {
+                    <tr>
+                        <!-- Display basic form data -->
+                        <td>@formData.CustomerName</td>
+                        <td>@formData.PhoneNumber</td>
+                        <td>@formData.CustomerType</td>
+                        <td>@formData.CoffeeType</td>
+                        <td>@formData.Size</td>
+                        <td>@formData.PurchasesCounter</td>
+
+
+                        <td>
+                            <!-- Check if hobbies exist -->
+                            @if (formData.SelectedAddonNames != null && formData.SelectedAddonNames.Any())
+                            {
+                                <!-- Display AddOns in a list -->
+                                <ul>
+                                    @foreach (var addOn in formData.SelectedAddonNames)
+                                    {
+                                        <li>@addOn</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <!-- Display a message if no AddOn -->
+                                <span>No AddOn</span>
+                            }
+                        </td>
+                        <td>Rs.@formData.TotalPrice</td>
+                        <td><button class="btn btn-primary"> Make Payment </button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @code {
+            // Download PDF function
+            public void DownloadPdf()
+            {
+                try
+                {
+                    var formDataList = CafeFormServices.RetrieveFormData();
+
+                    if (formDataList != null && formDataList.Any())
+                    {
+                        // Create a PDF document
+                        var pdf = new ChromePdfRenderer();
+
+                        // HTML table for PDF
+                        var tableHtml = "<table><thead><tr><th>Full Name</th><th>Phone Number</th><th>Coffee Type</th><th>Coffee Size</th><th>AddOns</th></tr></thead><tbody>";
+
+                        // Add data to the table
+                        // Loop through form data to add to the PDF table
+                        foreach (var formData in formDataList)
+                        {
+                            tableHtml += "<tr>";
+                            tableHtml += $"<td>{formData.CustomerName}</td><td>{formData.PhoneNumber}</td><td>{formData.CoffeeType}</td><td>{formData.Size}</td>";
+                            tableHtml += "<td>";
+
+                            // Check if hobbies exist for the current form data
+                            if (formData.SelectedAddonNames != null && formData.SelectedAddonNames.Any())
+                            {
+                                tableHtml += "<ul>";
+                                // Loop through hobbies and add to the PDF table
+                                foreach (var addOn in formData.SelectedAddonNames)
+                                {
+                                    tableHtml += $"<li>{addOn}</li>";
+                                }
+                                tableHtml += "</ul>";
+                            }
+                            else
+                            {
+                                // Display a message if no AddOn
+                                tableHtml += "<span>No AddOns</span>";
+                            }
+
+                            tableHtml += "</td></tr>";
+                        }
+
+                        tableHtml += "</tbody></table>";
+
+                        //Convert HTML to Pdf
+                        var pdfStream = pdf.RenderHtmlAsPdf(tableHtml).Stream;
+
+                        // Save the PDF Inside the folder
+                        string pdfPath = @"E:\BisleriumCafe\Database\Pdfs";
+
+                        //Combining file FormData.pdf with directory and also creating the pdf file at the same time using FileMode inbuilt class of .net and its method and finally storing it in variable fileStream
+                        using (var fileStream = new System.IO.FileStream(Path.Combine(pdfPath, "FormData.pdf"), System.IO.FileMode.Create))
+                        {
+                            pdfStream.CopyToAsync(fileStream); //copying the data of pdf inside application to the pdf created in you device
+                        }
+
+                        // Show notification
+                        App.Current.MainPage.DisplayAlert("Success", "File Downloaded Successfully", "Ok");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+    </div>
+
+</div>
+

@@ -1,0 +1,614 @@
+﻿@page "/placeorder"
+
+<!-- Razor page for creating a form with multiple hobbies -->
+
+<!-- Inject the NavigationManager Services for page navigation -->
+<!-- Razor page for creating a form with coffee add-ons including prices -->
+<!-- Inject the NavigationManager Services for page navigation -->
+@inject NavigationManager NavigationManager
+
+<!-- EditForm component of Blazor for handling form submission and validation -->
+<div class="page">
+    <div class="sidebar">
+        <NavBar />
+    </div>
+
+    <div class="content">
+     
+        <EditForm Model="@order" OnValidSubmit="@SubmitOrder">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="main-div">
+                <div class="heading-div">
+                    <h3>Place Customer's Order</h3>
+                </div>
+
+              <div class="inner-main">
+
+              
+                <div class="div-left">
+                    <div class="input-fields">
+                        <div class="form-group">
+                                <label for="Name"><b>Customer Name:</b></label>
+                            <!-- InputText component with two-way data binding to the PhoneNumber property -->
+                            <InputText id="CustomerName" class="form-control" @bind-Value="order.CustomerName" />
+                        </div>
+                        <div class="form-group">
+                                <label for="PhoneNumber"><b>Phone Number:</b></label>
+                            <!-- InputText component with two-way data binding to the PhoneNumber property -->
+                            <InputText id="Phone" class="form-control" @bind-Value="order.PhoneNumber" />
+                        </div>
+
+                    </div>
+
+                    <div class="input-coffee">
+                        <div class="form-group">
+                                <label for="coffeeType"><b>Coffee Type:</b></label>
+                                <select id="coffeeType" @bind="order.CoffeeType" class="form-control" required>
+                                    <!-- Iterate through the list of hobbies and create an option for each -->
+                                    @foreach (var coffee in coffeeDetails)
+                                    {
+                                        <option value="@coffee.CoffeeName">@coffee.CoffeeName Rs.@coffee.price</option>
+                                    }
+                                </select>
+                           @*  <select id="coffeeType" @bind="order.CoffeeType" name="coffeeType" class="form-control" required>
+                                <option value="latte">Latte</option>
+                                <option value="cappuccino">Cappuccino</option>
+                                <option value="espresso">Espresso</option>
+                                <option value="americano">Americano</option>
+                                <option value="mocha">Mocha</option>
+                                <option value="macchiato">Macchiato</option>
+                                <option value="affogato">Affogato</option>
+                                <option value="flat-white">Flat White</option>
+                                <option value="iced-coffee">Iced Coffee</option>
+                                <option value="double-shot">Double Shot</option>
+                                <!-- Add more coffee types as needed -->
+                            </select> *@
+                        </div>
+
+                        <div class="form-group">
+                                <label for="Size"><b>Coffee Size:</b></label>
+                                <select id="Size" @bind="order.Size" name="Size" class="form-control" required>
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                                <option value="Extra Large">Extra Large</option>
+
+                            </select>
+                        </div>
+
+                        
+                    </div>
+
+                        <div class="customer-section">
+                            <div class="form-group">
+                                <label for="customerType"><b>Customer Type:</b></label>
+                                <div class="radio-div">
+                                    <div>
+                                        <input type="radio" id="member" name="CustomerType" value="Member" @onchange="HandleCustomerTypeChange" />
+                                        <label for="member">Member</label>
+                                    </div>
+
+                                    <div>
+                                        <input type="radio" id="regular" name="CustomerType" value="Regular" @onchange="HandleCustomerTypeChange" />
+                                        <label for="regular">Regular</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                </div>
+
+
+
+                <div class="div-right">
+                        <div class="input-addon">
+
+                            <div class="form-group">
+                                <label><b>Addons:</b></label>
+
+                                <div class="addons-table">
+                                    @foreach (var addOn in addOnDetails)
+                                    {
+                                        <!-- Inside the loop for displaying coffee add-ons -->
+                                        <div class="addons-row">
+                                            <div class="addon-cell">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="@addOn.Id" id="@($"addon-{addOn.Id}")" @onclick="() => ToggleAddonSelection(addOn.Name)" />
+                                                    <label class="form-check-label" for="@($"addon-{addOn.Id}")">
+                                                        @addOn.Name Rs.@addOn.Price
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+
+                </div>
+
+
+                </div>
+
+                <!-- Submit button for form submission -->
+
+                <div class="main-btn">
+                   
+
+
+
+                    <div class="button-div">
+                        <button type="reset" @onclick="clearForm" class="btn btn-primary">
+                            Clear
+                        </button>
+
+                    </div>
+
+                    <div class="button-div">
+                        <button type="submit" class="btn btn-primary">
+                            Place Order <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cup-hot-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M.5 6a.5.5 0 0 0-.488.608l1.652 7.434A2.5 2.5 0 0 0 4.104 16h5.792a2.5 2.5 0 0 0 2.44-1.958l.131-.59a3 3 0 0 0 1.3-5.854l.221-.99A.5.5 0 0 0 13.5 6zM13 12.5a2 2 0 0 1-.316-.025l.867-3.898A2.001 2.001 0 0 1 13 12.5" />
+                                <path d="m4.4.8-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 3.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 3.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 3 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 4.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 6.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 6.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 6 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 7.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.252.382l-.019.025-.005.008-.002.002A.5.5 0 0 1 9.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 9.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 9 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 10.4.8" />
+                            </svg>
+                        </button>
+
+                    </div>
+
+                    <div class="button-div">
+                        <button type="button" @onclick="CalculateTotal" class="btn btn-primary">
+                            Calculate
+                        </button>
+
+                    </div>
+                </div>
+                
+               
+
+               
+            </div>
+
+           
+
+           
+            
+
+
+
+
+        </EditForm>
+    </div>
+    <div class="content">
+
+         <div class="total">
+            <div class="heading-div">
+                <h3>Total</h3>
+            </div>
+            <div class="input-addon">
+
+                <p>Coffee Type: @order.CoffeeType</p>
+                <p>Add-Ins:</p>
+                @if (AddOnList != null)
+                {
+                    foreach (var data in AddOnList)
+                    {
+                        System.Diagnostics.Debug.WriteLine(data);
+
+                        var selectedAddOn = addOnDetails.FirstOrDefault(a => a.Name == data);
+                        if (selectedAddOn != null)
+                        {
+                            <p> @selectedAddOn.Name @selectedAddOn.Price</p>
+              
+
+                        }
+
+
+
+                    }
+                }
+                else
+                {
+                    <h3>No addOns selected</h3>
+                }
+                <p>Total Price: @TotalPrice</p>
+            </div>
+
+        </div>
+
+
+    </div>
+   
+</div>
+
+@code {
+    // Model for the form
+    public PlaceOrderModel order = new PlaceOrderModel();
+    public PlaceOrderModel getPurchaseCounter = new PlaceOrderModel();
+
+
+
+    public List<AddOns> addOnDetails = new List<AddOns>();
+
+    public List<PlaceOrderModel> customers = new List<PlaceOrderModel>();
+
+
+
+
+    public List<String> AddOnList = new List<String>();
+
+
+    public List<CoffeeModel> coffeeDetails = new List<CoffeeModel>();
+
+    public int SumPrice { get; set; }
+
+    public string TotalPrice { get; set; }
+    public decimal disAmount { get; set; }
+    public string DiscountPrice { get; set; }
+
+
+
+    public int addOnTotal;
+
+
+
+    protected override void OnInitialized()
+    {
+        // Retrieve the list of available addOns
+        addOnDetails = AddOnServices.RetrieveAddOnsData();
+        base.OnInitialized();
+
+        coffeeDetails = CoffeeServices.RetrieveCoffeeData();
+        base.OnInitialized();
+
+        customers = CafeFormServices.RetrieveFormData();
+
+
+        System.Diagnostics.Debug.WriteLine(customers);
+
+
+
+    }
+
+    public void ToggleAddonSelection(String addOnName)
+    {
+        if (AddOnList.Contains(addOnName))
+        {
+            AddOnList.Remove(addOnName);
+            System.Diagnostics.Debug.WriteLine($"Unchecked - AddonId: {addOnName}, AddOnList: {string.Join(", ", AddOnList)}");
+        }
+        else
+        {
+            AddOnList.Add(addOnName);
+            System.Diagnostics.Debug.WriteLine($"Checked - AddonId: {addOnName}, AddOnList: {string.Join(", ", AddOnList)}");
+        }
+    }
+
+
+    public int getID(int addOnID)
+    {
+        System.Diagnostics.Debug.WriteLine(addOnID);
+
+        return addOnID;
+    }
+
+
+
+
+
+    private void HandleCustomerTypeChange(ChangeEventArgs e)
+    {
+        order.CustomerType = e.Value.ToString();
+    }
+
+    public void CalculateTotal()
+    {
+
+        foreach (var data in AddOnList)
+        {
+            System.Diagnostics.Debug.WriteLine(data);
+
+            var selectedAddOn = addOnDetails.FirstOrDefault(a => a.Name == data);
+            if (selectedAddOn != null)
+            {
+
+                addOnTotal += Convert.ToInt32(selectedAddOn.Price);
+                System.Diagnostics.Debug.WriteLine($"addTotal:{addOnTotal}");
+
+            }
+
+
+        }
+
+        var selectedCoffee = coffeeDetails.FirstOrDefault(c => c.CoffeeName == order.CoffeeType);
+        //var selectedAddOns = addOnDetails.FirstOrDefault(c => c.Price == Add);
+
+        //var selectedAddOns = addOnDetails.Where(a => order.SelectedAddonNames.Contains(a.Price);
+        //var selectedAddOns = addOnDetails.Where(a => order.SelectedAddonNames.Contains(a.Id.ToString()));
+
+        int coffeePrice = Convert.ToInt32(selectedCoffee.price);
+        // int addonsPrice = Convert.ToInt32(selectedAddOns);
+
+        System.Diagnostics.Debug.WriteLine(selectedCoffee);
+        // System.Diagnostics.Debug.WriteLine(selectedAddOns);
+
+        SumPrice = (coffeePrice + addOnTotal);
+
+        System.Diagnostics.Debug.WriteLine(SumPrice);
+
+
+        if (order.CustomerType == "Regular")
+        {
+
+            disAmount = SumPrice * 0.01m;
+            System.Diagnostics.Debug.WriteLine(disAmount);
+
+
+
+            TotalPrice = (SumPrice - disAmount).ToString();
+        }
+        else if (order.CustomerType == "Member")
+        {
+            TotalPrice = SumPrice.ToString();
+
+        }
+
+
+
+
+    }
+
+
+
+    // Method to handle form submission
+    public async Task SubmitOrder()
+    {
+        getPurchaseCounter = customers.FindLast(c => c.PhoneNumber == order.PhoneNumber);
+
+
+
+        if (getPurchaseCounter?.PhoneNumber == order.PhoneNumber && order.CustomerType == "Member")
+        {
+            // Increment the purchase counter for existing customers
+            order.PurchasesCounter = getPurchaseCounter.PurchasesCounter + 1;
+
+            System.Diagnostics.Debug.WriteLine(order.PurchasesCounter);
+
+
+            order.SelectedAddonNames = AddOnList.ToList();
+            System.Diagnostics.Debug.WriteLine(addOnTotal);
+            System.Diagnostics.Debug.WriteLine(getPurchaseCounter.PurchasesCounter);
+
+
+            order.TotalPrice = TotalPrice.ToString();
+
+
+
+            if (getPurchaseCounter.PurchasesCounter % 11 == 0)
+            {
+                await App.Current.MainPage.DisplayAlert("Success", "Hurray! You have made 10 Purchase and Now reedem your free drink", "Ok");
+
+            }
+
+            // Save form data
+            CafeFormServices.SaveFormDataInJson(order);
+            await App.Current.MainPage.DisplayAlert("Success", "Order has been placed", "Ok");
+
+            System.Diagnostics.Debug.WriteLine("Below exe");
+        }
+        else
+        {
+            order.PurchasesCounter = 1;
+            order.SelectedAddonNames = AddOnList.ToList();
+            System.Diagnostics.Debug.WriteLine(addOnTotal);
+
+            order.TotalPrice = TotalPrice.ToString();
+
+            // Save form data
+            CafeFormServices.SaveFormDataInJson(order);
+            await App.Current.MainPage.DisplayAlert("Success", "Order has been placed", "Ok");
+
+            System.Diagnostics.Debug.WriteLine("Top exe");
+
+
+        }
+        
+
+        System.Diagnostics.Debug.WriteLine(order.CustomerName);
+        System.Diagnostics.Debug.WriteLine(order.PhoneNumber);
+        System.Diagnostics.Debug.WriteLine(order.CoffeeType);
+        System.Diagnostics.Debug.WriteLine(order.Size);
+        System.Diagnostics.Debug.WriteLine(order.CustomerType);
+
+        // Update the order's selectedAddOns with the values from AddOnList
+        
+    }
+
+    public void clearForm()
+    {
+        // Reset the form model and AddOnList
+        AddOnList.Clear();
+        order.CoffeeType = "";
+        order.SelectedAddonNames = null;
+        addOnTotal = 0;
+        TotalPrice = "";
+
+    }
+
+
+}
+
+
+
+
+
+<style>
+    .main-btn{
+        display:flex;
+        justify-content:space-between;
+    }
+    .total{
+        display: block;
+        width: 20rem;
+        /* justify-content: center; */
+        /* align-items: center; */
+        height: 80vh; /* Optional: Make the div take the full viewport height */
+        background-color: #ffffff; /* Optional: Set background color */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Box shadow for a better shadow effect */
+        border-radius: 10px; /* Rounded edges */
+        padding: 20px;
+    }
+    .radio-div{
+        display: block;
+    }
+    .main-div {
+        display: block;
+        width: 50rem;
+        /* justify-content: center; */
+        /* align-items: center; */
+        height: 80vh; /* Optional: Make the div take the full viewport height */
+        background-color: #ffffff; /* Optional: Set background color */
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Box shadow for a better shadow effect */
+        border-radius: 10px; /* Rounded edges */
+        padding: 20px;
+    }
+
+    .div-left,
+    .div-right {
+        flex: 1; /* Distribute the space evenly between div-left and div-right */
+        padding: 10px;
+    }
+
+    .input-fields,
+    .input-coffee,
+    .input-addon,
+    .customer-section {
+        background-color: #f4f4f4; /* Optional: Set background color for input sections */
+        padding: 15px;
+        border-radius: 8px; /* Rounded edges for input sections */
+        margin-bottom: 15px;
+    }
+
+    .addons-table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .addons-row {
+        display: table-row;
+    }
+
+    .addon-cell {
+        display: table-cell;
+        padding: 5px;
+    }
+
+    .form-check {
+        margin-bottom: 5px;
+    }
+    .addons-table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .addons-row {
+        display: table-row;
+    }
+
+    .addon-cell {
+        display: table-cell;
+        padding: 5px;
+    }
+
+    .form-check {
+        margin-bottom: 5px;
+    }
+
+    .inner-main {
+        display:flex;
+        justify-content: space-between;
+    }
+
+    input-coffee {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .input-fields{
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .button-div{
+        display:flex;
+        justify-content:center;
+    }
+
+    .heading-div{
+        display:flex;
+        justify-content: center;
+    }
+    .content {
+        display: flex;
+        @* justify-content: space-between; *@
+        @* margin-left: 1rem; *@
+        padding-left: 1rem;
+    }
+
+ 
+
+    .sidebar {
+        background-color: #f0f0f0;
+    }
+
+    .content {
+        padding-top: 4rem;
+        width: 70%;
+        /* padding: 100px; */
+    }
+
+    .order-form {
+        max-width: 400px;
+        margin: auto;
+    }
+
+    .form-group {
+        max-width: auto;
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        width: 80%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .radio-group, .checkbox-group {
+        display: flex;
+        margin-top: 5px;
+    }
+
+        .radio-group input, .checkbox-group input {
+            margin-right: 5px;
+        }
+
+    .btn-primary {
+        background-color: #33210d;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-primary:hover {
+            background-color: #33210d;
+        }
+</style>

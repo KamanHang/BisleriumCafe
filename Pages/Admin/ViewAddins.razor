@@ -1,0 +1,82 @@
+﻿@page "/viewaddins"
+
+@using IronPdf
+<style>
+    .heading {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    .editBtn {
+        /* Add styling for the edit button if needed */
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+</style>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+    <div class="content">
+        <div class="heading">
+            <h3>Custom Heading Text</h3>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Add-ins</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var formData in AddOnServices.RetrieveAddOnsData())
+                {
+                    <tr>
+                        <td>@formData.Id</td>
+                        <td>@formData.Name</td>
+                        <td>Rs.@formData.Price</td>
+                        <td><button class="editBtn" @onclick="@(() => editAddInPrice(formData.Id))">Edit</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @code {
+            [Inject]
+            private NavigationManager NManager { get; set; }
+
+            // Initialize the page on start
+            protected override void OnInitialized()
+            {
+                // Inject sample hobby data to ensure some data exists
+                AddOnServices.InjectSampleAddOnsData();
+                base.OnInitialized();
+            }
+
+            // Method to navigate to the EditHobby page with a specific hobby Id
+            public void editAddInPrice(int id)
+            {
+                try
+                {
+                    // Navigate to the EditHobby page with the specific hobby ID
+                    NManager.NavigateTo($"/editaddin/{id}");
+                    System.Diagnostics.Debug.WriteLine("This is working");
+
+                }
+                catch (Exception ex)
+                {
+                    // Handle any navigation errors
+                    Console.WriteLine($"Error Navigating:{ex.Message}");
+                }
+            }
+        }
+    </div>
+</div>

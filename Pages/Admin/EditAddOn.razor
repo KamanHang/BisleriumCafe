@@ -1,0 +1,127 @@
+﻿@page "/editaddin/{id}"
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    .heading {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .detail {
+        margin-bottom: 10px;
+    }
+
+    .label {
+        font-weight: bold;
+    }
+</style>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+
+    </div>
+    <div class="content">
+        <div class="container">
+            <div class="heading">
+                <h1>Edit AddIn</h1>
+            </div>
+            <div class="details">
+                <div class="detail">
+                    <span class="label">ID:</span> @addOn.Id
+                </div>
+                <div class="detail">
+                    <span class="label">Name:</span> @addOn.Name
+                </div>
+                <div class="detail">
+                    <span class="label">Price:</span> Rs.@addOn.Price
+                </div>
+            </div>
+            <EditForm Model="@addOn" OnValidSubmit="@HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group">
+                    <label for="Price">Edit New Price:</label>
+                    <!-- InputText component with two-way data binding to the hobby's Name property -->
+                    <InputText id="Price" class="form-control" @bind-Value="addOn.Price" />
+                </div>
+                <div class="form-group">
+                    <label for="Password">Enter Password for Verification:</label>
+                    <InputText id="Password" class="form-control" @bind-Value="password" type="password" required />
+                </div>
+                <!-- Submit button for saving changes -->
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+
+</div>
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    public AddOns addOn;
+    private string password;
+
+    protected override void OnInitialized()
+    {
+        int addInId = Convert.ToInt32(Id);
+        addOn = AddOnServices.GetAddOnById(addInId);
+        base.OnInitialized();
+    }
+
+    public void HandleSubmit()
+    {
+        // Verify the password before proceeding
+        bool isPasswordCorrect = VerifyPassword(password);
+
+        if (isPasswordCorrect)
+        {
+            try
+            {
+                // Call AddOnServices to edit the add-on with the specified Id and updated Price
+                AddOnServices.EditNewPrice(Id, addOn.Price);
+
+                // Display a success alert and navigate back to the previous page
+                App.Current.MainPage.DisplayAlert("Success", "Data Successfully Edited", "Ok");
+                //NavManager.NavigateTo("/Hobbies");
+            }
+            catch (Exception ex)
+            {
+                // Display an error alert if an exception occurs during editing
+                App.Current.MainPage.DisplayAlert("Error", $"Error Editing AddOn: {ex.Message}", "Ok");
+            }
+        }
+        else
+        {
+            // Display an error alert if the password is incorrect
+            App.Current.MainPage.DisplayAlert("Error", "Incorrect Password", "Ok");
+        }
+    }
+
+    private bool VerifyPassword(string enteredPassword)
+    {
+        // Implement your password verification logic here
+        // You might compare enteredPassword with the actual password
+        // stored securely, for example, hashed and salted in your database
+        // Replace the following line with your actual verification logic
+        return enteredPassword == "12345";
+    }
+}
